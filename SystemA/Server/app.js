@@ -1,9 +1,4 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
+const express = require('express');
 
 const port = 3000;
 var app = express();
@@ -16,7 +11,7 @@ app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);  
+  res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
 
@@ -30,33 +25,30 @@ app.get('/actions', (req, res, next) => {
     
     arr = payload.split(',')
   }
+  let success = true, response = ''
 
-  switch(req.query.method) {
-    case 'IS-VALID-ENTRY': {
-      res.json({
-        success: true
-      })  
+  if (req.query.method == 'IS-VALID-ENTRY') {
+    response = {
+      success: success
     }
-    break;
-
-    case 'GEN-RAND': {
-      res.json({
-        data: [1,2,3,4,5,6,7]
-      })
+    if(!success)
+      response.errMessage = 'Input is invalid'
+  } 
+  else if (req.query.method == 'GEN-RAND') {
+    response = {
+      data: [1,2,3,4,5,6,7]
     }
-    break;
-
-    case 'CALCULATE-STATS': {
-      res.json({
-        data:{
-          mean: 1,
-          median: 2,
-          variance: 1.33
-        }
-      })
+  } 
+  else if (req.query.method == 'CALCULATE-STATS'){
+    response = {
+      data: {
+        mean: 1,
+        median: 2,
+        variance: 1.33
+      }
     }
-    break;
   }
+  res.json(response)
 })
 
 // catch 404 and forward to error handler

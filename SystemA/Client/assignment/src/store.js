@@ -35,9 +35,9 @@ export default new Vuex.Store({
       state.prompt = ''
       state.stats = {}
     },
-    requestError(state) {
+    requestError(state, errMessage) {
       state.status = 'error'
-      state.prompt = 'Some error occured. Please check the input'
+      state.prompt = errMessage
       setTimeout(2000, function() {
         state.prompt = ''
       })
@@ -50,28 +50,31 @@ export default new Vuex.Store({
     },
     genStats({commit}, input){
       return new Promise((resolve, reject) => {
-        console.log('Validity called');
+        // console.log('Validity called');
         commit('ongoingRequest')
         axios({
           url: 'http://localhost:3000/actions?method=IS-VALID-ENTRY&payload={entry: ' + input + '}&ts=' + Date.now(),
           method: 'GET'
         })
         .then(resp => {
-          console.log('validity call successful');
-          console.log("calculate stats called");
-          axios({
-            url: 'http://localhost:3000/actions?method=CALCULATE-STATS&payload={entry:' + input + '}&ts=' + Date.now(),
-            method: 'GET'
-          })
-          .then(data => {
-            console.log("calculate stats successful");
-            commit('genStatsSuccess', data.data)
-            resolve(data)
-          })
-          resolve(resp)
+          if(resp.data.success == false) {
+            commit('requestError', resp.data.errMessage)
+            resolve(resp)
+            return;
+          } else {
+            axios({
+              url: 'http://localhost:3000/actions?method=CALCULATE-STATS&payload={entry:' + input + '}&ts=' + Date.now(),
+              method: 'GET'
+            })
+            .then(data => {
+              // console.log("calculate stats successful");
+              commit('genStatsSuccess', data.data)
+              resolve(data)
+            })
+          }
         })
         .catch(err => {
-          console.log('error encountered');
+          // console.log('error encountered', err);
           commit('requestError', err)
           reject(err)
         })
@@ -79,14 +82,14 @@ export default new Vuex.Store({
     },
     genRandom({commit}){
       return new Promise((resolve, reject) => {
-        console.log('genRandom called');
+        // console.log('genRandom called');
         commit('ongoingRequest')
         axios({
           url: 'http://localhost:3000/actions?method=GEN-RAND&ts=' + Date.now(),
           method: 'GET'
         })
         .then(resp => {
-          console.log('genRandom successful');
+          // console.log('genRandom successful');
           commit('genRandomSuccess', resp.data)
           resolve(resp)
         })
