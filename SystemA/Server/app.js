@@ -1,5 +1,26 @@
 const express = require('express');
+const dnode = require('dnode');
+const thrift = require('thrift');
+const Stats = require("./gen-nodejs/statsCalculationService");
+const assert = require('assert');
+const portForRPC = 9090
 
+// RPC Client
+const transport = thrift.TBufferedTransport;
+const protocol = thrift.TBinaryProtocol;
+
+var connection = thrift.createConnection("localhost", portForRPC, {
+  transport : transport,
+  protocol : protocol
+});
+
+connection.on('error', function(err) {
+  assert(false, err);
+});
+
+const RCPclient = thrift.createClient(Stats, connection);
+
+// REST API
 const port = 3000;
 var app = express();
 
@@ -21,34 +42,48 @@ app.get('/actions', (req, res, next) => {
     payload = req.query.payload
       .replace('{entry:', '')
       .replace(/ /g, '')
-      .replace('}', '');
+      .replace('}', '')
+      .replace('[', '')
+      .replace(']', '')
     
     arr = payload.split(',')
   }
-  let success = true, response = ''
 
   if (req.query.method == 'IS-VALID-ENTRY') {
-    response = {
-      success: success
+    let valid = true
+    arr.forEach(element => {
+      if(isNaN(parseInt(element.trim()))) {
+        console.log(element.trim());
+        valid = false
+      }
+    });
+    if(valid) {
+      res.json({
+        success: true,
+      })
+    } else {
+      res.json({
+        success: false,
+        errMessage: 'Invalid input'
+      })
     }
-    if(!success)
-      response.errMessage = 'Input is invalid'
   } 
   else if (req.query.method == 'GEN-RAND') {
-    response = {
-      data: [1,2,3,4,5,6,7]
-    }
+    RCPclient.genRandom()
+    .then(function(response) {    
+      res.json(response);
+    })
   } 
   else if (req.query.method == 'CALCULATE-STATS'){
-    response = {
-      data: {
-        mean: 1,
-        median: 2,
-        variance: 1.33
-      }
-    }
+    let resp = {mean: '', median: '', variance: ''}
+    RCPclient.stats()
+    .then(function(response) {    
+      resp.mean = response.mean
+      resp.median = response.median
+      resp.variance = response.variance
+      res.json(resp)
+    })
   }
-  res.json(response)
 })
 
 // catch 404 and forward to error handler
