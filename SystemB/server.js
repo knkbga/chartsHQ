@@ -8,10 +8,11 @@ const statStruct = new ttypes.StatStruct();
 
 var server = thrift.createServer(Stats, {
   ping: function() {
-    console.log('ping() called return true...');
+    console.log('ping called');
     return true;
   },
   calculateStat: function(array) {
+    console.log('calculateStat called');
     statStruct.mean = statsLib.mean(array)
     statStruct.median = statsLib.median(array)
     statStruct.variance = statsLib.variance(array)
@@ -19,11 +20,14 @@ var server = thrift.createServer(Stats, {
   },
   generateNums: function() {
     console.log('generateNums called');
-    
-    let count = randomIntFromInterval(0, 10), num, resp = []
+    let count = 4*randomIntFromInterval(0, 3) + 4, num, resp = []
 
     for(let i = 0; i < count; i++) {
-      num = randomIntFromInterval(0, 10)
+      if((i+1) <= count/4) {
+        num = 2*randomIntFromInterval(1, 5) - 1
+      } else {
+        num = 2*randomIntFromInterval(0, 5)
+      }
       resp.push(num)
     }
 
@@ -33,7 +37,7 @@ var server = thrift.createServer(Stats, {
 
 server.listen(port, () => console.log('Running on port ' + port));
 
-function randomIntFromInterval(min,max) // min and max included
+function randomIntFromInterval(min,max)
 {
     return Math.floor(Math.random()*(max-min+1)+min);
 }

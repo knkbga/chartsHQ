@@ -1,5 +1,4 @@
 const express = require('express');
-const dnode = require('dnode');
 const thrift = require('thrift');
 const Stats = require("./gen-nodejs/statsCalculationService");
 const assert = require('assert');
@@ -20,10 +19,10 @@ connection.on('error', function(err) {
   assert(false, err);
 });
 
-const RCPclient = thrift.createClient(Stats, connection);
+const RPCclient = thrift.createClient(Stats, connection);
 
 // REST API
-const port = 3000;
+const port = 8080;
 var app = express();
 
 app.use(express.json());
@@ -39,6 +38,8 @@ app.use(function(req, res, next) {
 });
 
 app.get('/actions', (req, res, next) => {
+  console.log('In /actions');
+  
   let payload, arr
   if(req.query.payload !== undefined) {
     payload = req.query.payload
@@ -52,6 +53,7 @@ app.get('/actions', (req, res, next) => {
   }
 
   if (req.query.method == 'IS-VALID-ENTRY') {
+    console.log('\tIn IS-VALID-ENTRY');
     let valid = true
     arr.forEach(element => {
       if(isNaN(parseInt(element.trim()))) {
@@ -60,31 +62,55 @@ app.get('/actions', (req, res, next) => {
       }
     });
     if(valid) {
-      res.json({
+      return res.json({
         success: true,
       })
     } else {
-      res.json({
+      return res.json({
         success: false,
         errMessage: 'Invalid input'
       })
     }
   } 
   else if (req.query.method == 'GEN-RAND') {
-    RCPclient.generateNums()
-    .then(function(response) {    
-      res.json(response);
+    console.log('\tIn GEN-RAND');
+
+    return RPCclient.generateNums(function(err, response) {
+      if(err) {
+        console.log("\t\terr found:\t", err);
+        res.json({
+          success: false
+        })
+      } else {
+        console.log("\t\tresponse for generateNums:\t", response);
+        res.json({
+          success: true,
+          data: response
+        })
+      }
     })
   } 
   else if (req.query.method == 'CALCULATE-STATS'){
-    RCPclient.calculateStat(arr)
-    .then(function(response) {    
-      statStruct.mean = response.mean
-      statStruct.median = response.median
-      statStruct.variance = response.variance
-      res.json(statStruct)
+    console.log("\tIn CALCULATE-STATS");
+
+    let inputArg = []
+    arr.forEach((element, index) => {
+      inputArg[index] = parseInt(element.trim())
+    });
+    
+    return RPCclient.calculateStat(inputArg, function(err, response) {
+      if(err) {
+        console.log("\t\terr found:\t", err);
+      } else {
+        console.log("response for generateNums:\t", response);
+        res.json({
+          success: true,
+          data: response
+        })
+      }
     })
   }
+  next()
 })
 
 // catch 404 and forward to error handler
