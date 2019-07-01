@@ -13,16 +13,117 @@ var Q = thrift.Q;
 var ttypes = require('./stats_types');
 //HELPER FUNCTIONS AND STRUCTURES
 
-var statsCalculationService_mean_args = function(args) {
-  this.argList = null;
+var statsCalculationService_ping_args = function(args) {
+  this.structure = null;
   if (args) {
-    if (args.argList !== undefined && args.argList !== null) {
-      this.argList = Thrift.copyList(args.argList, [null]);
+    if (args.structure !== undefined && args.structure !== null) {
+      this.structure = new ttypes.StatStruct(args.structure);
     }
   }
 };
-statsCalculationService_mean_args.prototype = {};
-statsCalculationService_mean_args.prototype.read = function(input) {
+statsCalculationService_ping_args.prototype = {};
+statsCalculationService_ping_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.structure = new ttypes.StatStruct();
+        this.structure.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+statsCalculationService_ping_args.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_ping_args');
+  if (this.structure !== null && this.structure !== undefined) {
+    output.writeFieldBegin('structure', Thrift.Type.STRUCT, 1);
+    this.structure.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+var statsCalculationService_ping_result = function(args) {
+  this.success = null;
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = args.success;
+    }
+  }
+};
+statsCalculationService_ping_result.prototype = {};
+statsCalculationService_ping_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 0:
+      if (ftype == Thrift.Type.BOOL) {
+        this.success = input.readBool();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+statsCalculationService_ping_result.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_ping_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.BOOL, 0);
+    output.writeBool(this.success);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+var statsCalculationService_calculateStat_args = function(args) {
+  this.inputList = null;
+  if (args) {
+    if (args.inputList !== undefined && args.inputList !== null) {
+      this.inputList = Thrift.copyList(args.inputList, [null]);
+    }
+  }
+};
+statsCalculationService_calculateStat_args.prototype = {};
+statsCalculationService_calculateStat_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -34,13 +135,13 @@ statsCalculationService_mean_args.prototype.read = function(input) {
     switch (fid) {
       case 1:
       if (ftype == Thrift.Type.LIST) {
-        this.argList = [];
+        this.inputList = [];
         var _rtmp31 = input.readListBegin();
         var _size0 = _rtmp31.size || 0;
         for (var _i2 = 0; _i2 < _size0; ++_i2) {
           var elem3 = null;
           elem3 = input.readI32();
-          this.argList.push(elem3);
+          this.inputList.push(elem3);
         }
         input.readListEnd();
       } else {
@@ -59,14 +160,14 @@ statsCalculationService_mean_args.prototype.read = function(input) {
   return;
 };
 
-statsCalculationService_mean_args.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_mean_args');
-  if (this.argList !== null && this.argList !== undefined) {
-    output.writeFieldBegin('argList', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.I32, this.argList.length);
-    for (var iter4 in this.argList) {
-      if (this.argList.hasOwnProperty(iter4)) {
-        iter4 = this.argList[iter4];
+statsCalculationService_calculateStat_args.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_calculateStat_args');
+  if (this.inputList !== null && this.inputList !== undefined) {
+    output.writeFieldBegin('inputList', Thrift.Type.LIST, 1);
+    output.writeListBegin(Thrift.Type.I32, this.inputList.length);
+    for (var iter4 in this.inputList) {
+      if (this.inputList.hasOwnProperty(iter4)) {
+        iter4 = this.inputList[iter4];
         output.writeI32(iter4);
       }
     }
@@ -78,16 +179,16 @@ statsCalculationService_mean_args.prototype.write = function(output) {
   return;
 };
 
-var statsCalculationService_mean_result = function(args) {
+var statsCalculationService_calculateStat_result = function(args) {
   this.success = null;
   if (args) {
     if (args.success !== undefined && args.success !== null) {
-      this.success = args.success;
+      this.success = new ttypes.StatStruct(args.success);
     }
   }
 };
-statsCalculationService_mean_result.prototype = {};
-statsCalculationService_mean_result.prototype.read = function(input) {
+statsCalculationService_calculateStat_result.prototype = {};
+statsCalculationService_calculateStat_result.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -98,8 +199,9 @@ statsCalculationService_mean_result.prototype.read = function(input) {
     }
     switch (fid) {
       case 0:
-      if (ftype == Thrift.Type.DOUBLE) {
-        this.success = input.readDouble();
+      if (ftype == Thrift.Type.STRUCT) {
+        this.success = new ttypes.StatStruct();
+        this.success.read(input);
       } else {
         input.skip(ftype);
       }
@@ -116,11 +218,11 @@ statsCalculationService_mean_result.prototype.read = function(input) {
   return;
 };
 
-statsCalculationService_mean_result.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_mean_result');
+statsCalculationService_calculateStat_result.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_calculateStat_result');
   if (this.success !== null && this.success !== undefined) {
-    output.writeFieldBegin('success', Thrift.Type.DOUBLE, 0);
-    output.writeDouble(this.success);
+    output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
+    this.success.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -128,240 +230,10 @@ statsCalculationService_mean_result.prototype.write = function(output) {
   return;
 };
 
-var statsCalculationService_median_args = function(args) {
-  this.argList = null;
-  if (args) {
-    if (args.argList !== undefined && args.argList !== null) {
-      this.argList = Thrift.copyList(args.argList, [null]);
-    }
-  }
+var statsCalculationService_generateNums_args = function(args) {
 };
-statsCalculationService_median_args.prototype = {};
-statsCalculationService_median_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true) {
-    var ret = input.readFieldBegin();
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid) {
-      case 1:
-      if (ftype == Thrift.Type.LIST) {
-        this.argList = [];
-        var _rtmp36 = input.readListBegin();
-        var _size5 = _rtmp36.size || 0;
-        for (var _i7 = 0; _i7 < _size5; ++_i7) {
-          var elem8 = null;
-          elem8 = input.readI32();
-          this.argList.push(elem8);
-        }
-        input.readListEnd();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-statsCalculationService_median_args.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_median_args');
-  if (this.argList !== null && this.argList !== undefined) {
-    output.writeFieldBegin('argList', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.I32, this.argList.length);
-    for (var iter9 in this.argList) {
-      if (this.argList.hasOwnProperty(iter9)) {
-        iter9 = this.argList[iter9];
-        output.writeI32(iter9);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-var statsCalculationService_median_result = function(args) {
-  this.success = null;
-  if (args) {
-    if (args.success !== undefined && args.success !== null) {
-      this.success = args.success;
-    }
-  }
-};
-statsCalculationService_median_result.prototype = {};
-statsCalculationService_median_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true) {
-    var ret = input.readFieldBegin();
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid) {
-      case 0:
-      if (ftype == Thrift.Type.DOUBLE) {
-        this.success = input.readDouble();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-statsCalculationService_median_result.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_median_result');
-  if (this.success !== null && this.success !== undefined) {
-    output.writeFieldBegin('success', Thrift.Type.DOUBLE, 0);
-    output.writeDouble(this.success);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-var statsCalculationService_variance_args = function(args) {
-  this.argList = null;
-  if (args) {
-    if (args.argList !== undefined && args.argList !== null) {
-      this.argList = Thrift.copyList(args.argList, [null]);
-    }
-  }
-};
-statsCalculationService_variance_args.prototype = {};
-statsCalculationService_variance_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true) {
-    var ret = input.readFieldBegin();
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid) {
-      case 1:
-      if (ftype == Thrift.Type.LIST) {
-        this.argList = [];
-        var _rtmp311 = input.readListBegin();
-        var _size10 = _rtmp311.size || 0;
-        for (var _i12 = 0; _i12 < _size10; ++_i12) {
-          var elem13 = null;
-          elem13 = input.readI32();
-          this.argList.push(elem13);
-        }
-        input.readListEnd();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-statsCalculationService_variance_args.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_variance_args');
-  if (this.argList !== null && this.argList !== undefined) {
-    output.writeFieldBegin('argList', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.I32, this.argList.length);
-    for (var iter14 in this.argList) {
-      if (this.argList.hasOwnProperty(iter14)) {
-        iter14 = this.argList[iter14];
-        output.writeI32(iter14);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-var statsCalculationService_variance_result = function(args) {
-  this.success = null;
-  if (args) {
-    if (args.success !== undefined && args.success !== null) {
-      this.success = args.success;
-    }
-  }
-};
-statsCalculationService_variance_result.prototype = {};
-statsCalculationService_variance_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true) {
-    var ret = input.readFieldBegin();
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid) {
-      case 0:
-      if (ftype == Thrift.Type.DOUBLE) {
-        this.success = input.readDouble();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-statsCalculationService_variance_result.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_variance_result');
-  if (this.success !== null && this.success !== undefined) {
-    output.writeFieldBegin('success', Thrift.Type.DOUBLE, 0);
-    output.writeDouble(this.success);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-var statsCalculationService_genRandom_args = function(args) {
-};
-statsCalculationService_genRandom_args.prototype = {};
-statsCalculationService_genRandom_args.prototype.read = function(input) {
+statsCalculationService_generateNums_args.prototype = {};
+statsCalculationService_generateNums_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -376,14 +248,14 @@ statsCalculationService_genRandom_args.prototype.read = function(input) {
   return;
 };
 
-statsCalculationService_genRandom_args.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_genRandom_args');
+statsCalculationService_generateNums_args.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_generateNums_args');
   output.writeFieldStop();
   output.writeStructEnd();
   return;
 };
 
-var statsCalculationService_genRandom_result = function(args) {
+var statsCalculationService_generateNums_result = function(args) {
   this.success = null;
   if (args) {
     if (args.success !== undefined && args.success !== null) {
@@ -391,8 +263,8 @@ var statsCalculationService_genRandom_result = function(args) {
     }
   }
 };
-statsCalculationService_genRandom_result.prototype = {};
-statsCalculationService_genRandom_result.prototype.read = function(input) {
+statsCalculationService_generateNums_result.prototype = {};
+statsCalculationService_generateNums_result.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -405,12 +277,12 @@ statsCalculationService_genRandom_result.prototype.read = function(input) {
       case 0:
       if (ftype == Thrift.Type.LIST) {
         this.success = [];
-        var _rtmp316 = input.readListBegin();
-        var _size15 = _rtmp316.size || 0;
-        for (var _i17 = 0; _i17 < _size15; ++_i17) {
-          var elem18 = null;
-          elem18 = input.readI32();
-          this.success.push(elem18);
+        var _rtmp36 = input.readListBegin();
+        var _size5 = _rtmp36.size || 0;
+        for (var _i7 = 0; _i7 < _size5; ++_i7) {
+          var elem8 = null;
+          elem8 = input.readI32();
+          this.success.push(elem8);
         }
         input.readListEnd();
       } else {
@@ -429,15 +301,15 @@ statsCalculationService_genRandom_result.prototype.read = function(input) {
   return;
 };
 
-statsCalculationService_genRandom_result.prototype.write = function(output) {
-  output.writeStructBegin('statsCalculationService_genRandom_result');
+statsCalculationService_generateNums_result.prototype.write = function(output) {
+  output.writeStructBegin('statsCalculationService_generateNums_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.I32, this.success.length);
-    for (var iter19 in this.success) {
-      if (this.success.hasOwnProperty(iter19)) {
-        iter19 = this.success[iter19];
-        output.writeI32(iter19);
+    for (var iter9 in this.success) {
+      if (this.success.hasOwnProperty(iter9)) {
+        iter9 = this.success[iter9];
+        output.writeI32(iter9);
       }
     }
     output.writeListEnd();
@@ -458,7 +330,7 @@ statsCalculationServiceClient.prototype = {};
 statsCalculationServiceClient.prototype.seqid = function() { return this._seqid; };
 statsCalculationServiceClient.prototype.new_seqid = function() { return this._seqid += 1; };
 
-statsCalculationServiceClient.prototype.mean = function(argList, callback) {
+statsCalculationServiceClient.prototype.ping = function(structure, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -469,22 +341,22 @@ statsCalculationServiceClient.prototype.mean = function(argList, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_mean(argList);
+    this.send_ping(structure);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_mean(argList);
+    this.send_ping(structure);
   }
 };
 
-statsCalculationServiceClient.prototype.send_mean = function(argList) {
+statsCalculationServiceClient.prototype.send_ping = function(structure) {
   var output = new this.pClass(this.output);
   var params = {
-    argList: argList
+    structure: structure
   };
-  var args = new statsCalculationService_mean_args(params);
+  var args = new statsCalculationService_ping_args(params);
   try {
-    output.writeMessageBegin('mean', Thrift.MessageType.CALL, this.seqid());
+    output.writeMessageBegin('ping', Thrift.MessageType.CALL, this.seqid());
     args.write(output);
     output.writeMessageEnd();
     return this.output.flush();
@@ -498,7 +370,7 @@ statsCalculationServiceClient.prototype.send_mean = function(argList) {
   }
 };
 
-statsCalculationServiceClient.prototype.recv_mean = function(input,mtype,rseqid) {
+statsCalculationServiceClient.prototype.recv_ping = function(input,mtype,rseqid) {
   var callback = this._reqs[rseqid] || function() {};
   delete this._reqs[rseqid];
   if (mtype == Thrift.MessageType.EXCEPTION) {
@@ -507,17 +379,17 @@ statsCalculationServiceClient.prototype.recv_mean = function(input,mtype,rseqid)
     input.readMessageEnd();
     return callback(x);
   }
-  var result = new statsCalculationService_mean_result();
+  var result = new statsCalculationService_ping_result();
   result.read(input);
   input.readMessageEnd();
 
   if (null !== result.success) {
     return callback(null, result.success);
   }
-  return callback('mean failed: unknown result');
+  return callback('ping failed: unknown result');
 };
 
-statsCalculationServiceClient.prototype.median = function(argList, callback) {
+statsCalculationServiceClient.prototype.calculateStat = function(inputList, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -528,22 +400,22 @@ statsCalculationServiceClient.prototype.median = function(argList, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_median(argList);
+    this.send_calculateStat(inputList);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_median(argList);
+    this.send_calculateStat(inputList);
   }
 };
 
-statsCalculationServiceClient.prototype.send_median = function(argList) {
+statsCalculationServiceClient.prototype.send_calculateStat = function(inputList) {
   var output = new this.pClass(this.output);
   var params = {
-    argList: argList
+    inputList: inputList
   };
-  var args = new statsCalculationService_median_args(params);
+  var args = new statsCalculationService_calculateStat_args(params);
   try {
-    output.writeMessageBegin('median', Thrift.MessageType.CALL, this.seqid());
+    output.writeMessageBegin('calculateStat', Thrift.MessageType.CALL, this.seqid());
     args.write(output);
     output.writeMessageEnd();
     return this.output.flush();
@@ -557,7 +429,7 @@ statsCalculationServiceClient.prototype.send_median = function(argList) {
   }
 };
 
-statsCalculationServiceClient.prototype.recv_median = function(input,mtype,rseqid) {
+statsCalculationServiceClient.prototype.recv_calculateStat = function(input,mtype,rseqid) {
   var callback = this._reqs[rseqid] || function() {};
   delete this._reqs[rseqid];
   if (mtype == Thrift.MessageType.EXCEPTION) {
@@ -566,17 +438,17 @@ statsCalculationServiceClient.prototype.recv_median = function(input,mtype,rseqi
     input.readMessageEnd();
     return callback(x);
   }
-  var result = new statsCalculationService_median_result();
+  var result = new statsCalculationService_calculateStat_result();
   result.read(input);
   input.readMessageEnd();
 
   if (null !== result.success) {
     return callback(null, result.success);
   }
-  return callback('median failed: unknown result');
+  return callback('calculateStat failed: unknown result');
 };
 
-statsCalculationServiceClient.prototype.variance = function(argList, callback) {
+statsCalculationServiceClient.prototype.generateNums = function(callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -587,22 +459,19 @@ statsCalculationServiceClient.prototype.variance = function(argList, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_variance(argList);
+    this.send_generateNums();
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_variance(argList);
+    this.send_generateNums();
   }
 };
 
-statsCalculationServiceClient.prototype.send_variance = function(argList) {
+statsCalculationServiceClient.prototype.send_generateNums = function() {
   var output = new this.pClass(this.output);
-  var params = {
-    argList: argList
-  };
-  var args = new statsCalculationService_variance_args(params);
+  var args = new statsCalculationService_generateNums_args();
   try {
-    output.writeMessageBegin('variance', Thrift.MessageType.CALL, this.seqid());
+    output.writeMessageBegin('generateNums', Thrift.MessageType.CALL, this.seqid());
     args.write(output);
     output.writeMessageEnd();
     return this.output.flush();
@@ -616,7 +485,7 @@ statsCalculationServiceClient.prototype.send_variance = function(argList) {
   }
 };
 
-statsCalculationServiceClient.prototype.recv_variance = function(input,mtype,rseqid) {
+statsCalculationServiceClient.prototype.recv_generateNums = function(input,mtype,rseqid) {
   var callback = this._reqs[rseqid] || function() {};
   delete this._reqs[rseqid];
   if (mtype == Thrift.MessageType.EXCEPTION) {
@@ -625,70 +494,14 @@ statsCalculationServiceClient.prototype.recv_variance = function(input,mtype,rse
     input.readMessageEnd();
     return callback(x);
   }
-  var result = new statsCalculationService_variance_result();
+  var result = new statsCalculationService_generateNums_result();
   result.read(input);
   input.readMessageEnd();
 
   if (null !== result.success) {
     return callback(null, result.success);
   }
-  return callback('variance failed: unknown result');
-};
-
-statsCalculationServiceClient.prototype.genRandom = function(callback) {
-  this._seqid = this.new_seqid();
-  if (callback === undefined) {
-    var _defer = Q.defer();
-    this._reqs[this.seqid()] = function(error, result) {
-      if (error) {
-        _defer.reject(error);
-      } else {
-        _defer.resolve(result);
-      }
-    };
-    this.send_genRandom();
-    return _defer.promise;
-  } else {
-    this._reqs[this.seqid()] = callback;
-    this.send_genRandom();
-  }
-};
-
-statsCalculationServiceClient.prototype.send_genRandom = function() {
-  var output = new this.pClass(this.output);
-  var args = new statsCalculationService_genRandom_args();
-  try {
-    output.writeMessageBegin('genRandom', Thrift.MessageType.CALL, this.seqid());
-    args.write(output);
-    output.writeMessageEnd();
-    return this.output.flush();
-  }
-  catch (e) {
-    delete this._reqs[this.seqid()];
-    if (typeof output.reset === 'function') {
-      output.reset();
-    }
-    throw e;
-  }
-};
-
-statsCalculationServiceClient.prototype.recv_genRandom = function(input,mtype,rseqid) {
-  var callback = this._reqs[rseqid] || function() {};
-  delete this._reqs[rseqid];
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(input);
-    input.readMessageEnd();
-    return callback(x);
-  }
-  var result = new statsCalculationService_genRandom_result();
-  result.read(input);
-  input.readMessageEnd();
-
-  if (null !== result.success) {
-    return callback(null, result.success);
-  }
-  return callback('genRandom failed: unknown result');
+  return callback('generateNums failed: unknown result');
 };
 var statsCalculationServiceProcessor = exports.Processor = function(handler) {
   this._handler = handler;
@@ -707,36 +520,36 @@ statsCalculationServiceProcessor.prototype.process = function(input, output) {
     output.flush();
   }
 };
-statsCalculationServiceProcessor.prototype.process_mean = function(seqid, input, output) {
-  var args = new statsCalculationService_mean_args();
+statsCalculationServiceProcessor.prototype.process_ping = function(seqid, input, output) {
+  var args = new statsCalculationService_ping_args();
   args.read(input);
   input.readMessageEnd();
-  if (this._handler.mean.length === 1) {
-    Q.fcall(this._handler.mean.bind(this._handler),
-      args.argList
+  if (this._handler.ping.length === 1) {
+    Q.fcall(this._handler.ping.bind(this._handler),
+      args.structure
     ).then(function(result) {
-      var result_obj = new statsCalculationService_mean_result({success: result});
-      output.writeMessageBegin("mean", Thrift.MessageType.REPLY, seqid);
+      var result_obj = new statsCalculationService_ping_result({success: result});
+      output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
       result_obj.write(output);
       output.writeMessageEnd();
       output.flush();
     }).catch(function (err) {
       var result;
       result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-      output.writeMessageBegin("mean", Thrift.MessageType.EXCEPTION, seqid);
+      output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
       result.write(output);
       output.writeMessageEnd();
       output.flush();
     });
   } else {
-    this._handler.mean(args.argList, function (err, result) {
+    this._handler.ping(args.structure, function (err, result) {
       var result_obj;
       if ((err === null || typeof err === 'undefined')) {
-        result_obj = new statsCalculationService_mean_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("mean", Thrift.MessageType.REPLY, seqid);
+        result_obj = new statsCalculationService_ping_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("mean", Thrift.MessageType.EXCEPTION, seqid);
+        output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();
@@ -744,36 +557,36 @@ statsCalculationServiceProcessor.prototype.process_mean = function(seqid, input,
     });
   }
 };
-statsCalculationServiceProcessor.prototype.process_median = function(seqid, input, output) {
-  var args = new statsCalculationService_median_args();
+statsCalculationServiceProcessor.prototype.process_calculateStat = function(seqid, input, output) {
+  var args = new statsCalculationService_calculateStat_args();
   args.read(input);
   input.readMessageEnd();
-  if (this._handler.median.length === 1) {
-    Q.fcall(this._handler.median.bind(this._handler),
-      args.argList
+  if (this._handler.calculateStat.length === 1) {
+    Q.fcall(this._handler.calculateStat.bind(this._handler),
+      args.inputList
     ).then(function(result) {
-      var result_obj = new statsCalculationService_median_result({success: result});
-      output.writeMessageBegin("median", Thrift.MessageType.REPLY, seqid);
+      var result_obj = new statsCalculationService_calculateStat_result({success: result});
+      output.writeMessageBegin("calculateStat", Thrift.MessageType.REPLY, seqid);
       result_obj.write(output);
       output.writeMessageEnd();
       output.flush();
     }).catch(function (err) {
       var result;
       result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-      output.writeMessageBegin("median", Thrift.MessageType.EXCEPTION, seqid);
+      output.writeMessageBegin("calculateStat", Thrift.MessageType.EXCEPTION, seqid);
       result.write(output);
       output.writeMessageEnd();
       output.flush();
     });
   } else {
-    this._handler.median(args.argList, function (err, result) {
+    this._handler.calculateStat(args.inputList, function (err, result) {
       var result_obj;
       if ((err === null || typeof err === 'undefined')) {
-        result_obj = new statsCalculationService_median_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("median", Thrift.MessageType.REPLY, seqid);
+        result_obj = new statsCalculationService_calculateStat_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("calculateStat", Thrift.MessageType.REPLY, seqid);
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("median", Thrift.MessageType.EXCEPTION, seqid);
+        output.writeMessageBegin("calculateStat", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();
@@ -781,72 +594,35 @@ statsCalculationServiceProcessor.prototype.process_median = function(seqid, inpu
     });
   }
 };
-statsCalculationServiceProcessor.prototype.process_variance = function(seqid, input, output) {
-  var args = new statsCalculationService_variance_args();
+statsCalculationServiceProcessor.prototype.process_generateNums = function(seqid, input, output) {
+  var args = new statsCalculationService_generateNums_args();
   args.read(input);
   input.readMessageEnd();
-  if (this._handler.variance.length === 1) {
-    Q.fcall(this._handler.variance.bind(this._handler),
-      args.argList
+  if (this._handler.generateNums.length === 0) {
+    Q.fcall(this._handler.generateNums.bind(this._handler)
     ).then(function(result) {
-      var result_obj = new statsCalculationService_variance_result({success: result});
-      output.writeMessageBegin("variance", Thrift.MessageType.REPLY, seqid);
+      var result_obj = new statsCalculationService_generateNums_result({success: result});
+      output.writeMessageBegin("generateNums", Thrift.MessageType.REPLY, seqid);
       result_obj.write(output);
       output.writeMessageEnd();
       output.flush();
     }).catch(function (err) {
       var result;
       result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-      output.writeMessageBegin("variance", Thrift.MessageType.EXCEPTION, seqid);
+      output.writeMessageBegin("generateNums", Thrift.MessageType.EXCEPTION, seqid);
       result.write(output);
       output.writeMessageEnd();
       output.flush();
     });
   } else {
-    this._handler.variance(args.argList, function (err, result) {
+    this._handler.generateNums(function (err, result) {
       var result_obj;
       if ((err === null || typeof err === 'undefined')) {
-        result_obj = new statsCalculationService_variance_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("variance", Thrift.MessageType.REPLY, seqid);
+        result_obj = new statsCalculationService_generateNums_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("generateNums", Thrift.MessageType.REPLY, seqid);
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("variance", Thrift.MessageType.EXCEPTION, seqid);
-      }
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    });
-  }
-};
-statsCalculationServiceProcessor.prototype.process_genRandom = function(seqid, input, output) {
-  var args = new statsCalculationService_genRandom_args();
-  args.read(input);
-  input.readMessageEnd();
-  if (this._handler.genRandom.length === 0) {
-    Q.fcall(this._handler.genRandom.bind(this._handler)
-    ).then(function(result) {
-      var result_obj = new statsCalculationService_genRandom_result({success: result});
-      output.writeMessageBegin("genRandom", Thrift.MessageType.REPLY, seqid);
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    }).catch(function (err) {
-      var result;
-      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-      output.writeMessageBegin("genRandom", Thrift.MessageType.EXCEPTION, seqid);
-      result.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    });
-  } else {
-    this._handler.genRandom(function (err, result) {
-      var result_obj;
-      if ((err === null || typeof err === 'undefined')) {
-        result_obj = new statsCalculationService_genRandom_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("genRandom", Thrift.MessageType.REPLY, seqid);
-      } else {
-        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("genRandom", Thrift.MessageType.EXCEPTION, seqid);
+        output.writeMessageBegin("generateNums", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();

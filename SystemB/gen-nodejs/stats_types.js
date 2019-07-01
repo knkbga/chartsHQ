@@ -11,3 +11,82 @@ var Q = thrift.Q;
 
 
 var ttypes = module.exports = {};
+var StatStruct = module.exports.StatStruct = function(args) {
+  this.mean = 0;
+  this.median = 0;
+  this.variance = 0;
+  if (args) {
+    if (args.mean !== undefined && args.mean !== null) {
+      this.mean = args.mean;
+    }
+    if (args.median !== undefined && args.median !== null) {
+      this.median = args.median;
+    }
+    if (args.variance !== undefined && args.variance !== null) {
+      this.variance = args.variance;
+    }
+  }
+};
+StatStruct.prototype = {};
+StatStruct.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 1:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.mean = input.readDouble();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.median = input.readDouble();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.variance = input.readDouble();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+StatStruct.prototype.write = function(output) {
+  output.writeStructBegin('StatStruct');
+  if (this.mean !== null && this.mean !== undefined) {
+    output.writeFieldBegin('mean', Thrift.Type.DOUBLE, 1);
+    output.writeDouble(this.mean);
+    output.writeFieldEnd();
+  }
+  if (this.median !== null && this.median !== undefined) {
+    output.writeFieldBegin('median', Thrift.Type.DOUBLE, 2);
+    output.writeDouble(this.median);
+    output.writeFieldEnd();
+  }
+  if (this.variance !== null && this.variance !== undefined) {
+    output.writeFieldBegin('variance', Thrift.Type.DOUBLE, 3);
+    output.writeDouble(this.variance);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+

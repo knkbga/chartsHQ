@@ -3,11 +3,13 @@ const dnode = require('dnode');
 const thrift = require('thrift');
 const Stats = require("./gen-nodejs/statsCalculationService");
 const assert = require('assert');
+const ttypes = require('./gen-nodejs/stats_types');
 const portForRPC = 9090
 
 // RPC Client
 const transport = thrift.TBufferedTransport;
 const protocol = thrift.TBinaryProtocol;
+const statStruct = new ttypes.StatStruct();
 
 var connection = thrift.createConnection("localhost", portForRPC, {
   transport : transport,
@@ -69,19 +71,18 @@ app.get('/actions', (req, res, next) => {
     }
   } 
   else if (req.query.method == 'GEN-RAND') {
-    RCPclient.genRandom()
+    RCPclient.generateNums()
     .then(function(response) {    
       res.json(response);
     })
   } 
   else if (req.query.method == 'CALCULATE-STATS'){
-    let resp = {mean: '', median: '', variance: ''}
-    RCPclient.stats()
+    RCPclient.calculateStat(arr)
     .then(function(response) {    
-      resp.mean = response.mean
-      resp.median = response.median
-      resp.variance = response.variance
-      res.json(resp)
+      statStruct.mean = response.mean
+      statStruct.median = response.median
+      statStruct.variance = response.variance
+      res.json(statStruct)
     })
   }
 })
